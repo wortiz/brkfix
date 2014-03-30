@@ -438,7 +438,6 @@ main (int argc, char *argv[], char *envp[])
   int n;			/* node counter */
   /*   int nargs;		 number of nonoption arguments leftover */
   int *nat_contribute;		/* number of assembled terms for nn interact. */
-  int nchars;
   int ne;			/* number of elements */
   int neb;			/* number of element blocks */
   int nev;			/* number of element variables */
@@ -582,8 +581,6 @@ main (int argc, char *argv[], char *envp[])
 
   char  in_exodus_file_name[FILENAME_MAX_ACK]; /* input monolith EXODUS II file */
 
-  char  basename[FILENAME_MAX_ACK];		   /* input monolith EXODUS II file */  
-
   char  out_coord_file_name[FILENAME_MAX_ACK]; /* coordinate file name */
   
   char  out_extra_file_name[FILENAME_MAX_ACK]; /* external field variables */
@@ -593,8 +590,6 @@ main (int argc, char *argv[], char *envp[])
   char  out_augplot_file_name[FILENAME_MAX_ACK]; /* decomposition plot file name */
 
   char  err_msg[MAX_CHAR_ERR_MSG];
-
-  char *end_loc;
 
   char *tmp;			/* char pointer junkyard of no interest */
 
@@ -3414,37 +3409,13 @@ main (int argc, char *argv[], char *envp[])
        */
 
       /*
-       * New name of part: file.exoII becomes file_435_567.exoII...
-       */
-
-      /*
-       * Strip out a basename...
+       * New name of part: file.exoII becomes file.exoII.6.2...
        */
       
-      basename[0]        = '\0';
-      end_loc            = strstr(in_exodus_file_name, EXODUS_FILE_SUFFIX);
-      if ( end_loc != NULL )
-	{
-	  nchars         = (int)(end_loc - in_exodus_file_name);
-#ifdef DEBUG
-	  fprintf(stderr, "basename has length %d\n", nchars);
-#endif	  
-	  tmp            = strncpy(basename, in_exodus_file_name, 
-				   (size_t)nchars);
-	  basename[nchars] = '\0';
-	}
-      else
-	{
-#ifdef DEBUG
-	  fprintf(stderr, "The exodus 2 file name has not suffix.\n");
-#endif	  
-	  strcpy(basename, in_exodus_file_name);
-	}
 
       E->path            = (char *) smalloc(FILENAME_MAX_ACK*SZ_CHR);
 
-      sr                 = sprintf(E->path, "%s_%dof%d.exoII", basename, s+1, 
-				   num_pieces);
+      sr                 = sprintf(E->path, "%s.%d.%d", in_exodus_file_name, num_pieces, s);
 
       E->title           = (char *) smalloc(MAX_LINE_LENGTH*SZ_CHR);
 

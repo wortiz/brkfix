@@ -783,8 +783,6 @@ multiname(char *in_name,
 	  int processor_name, 
 	  int number_processors)
 {
-  char basename[FILENAME_MAX_ACK];
-  char suffix[FILENAME_MAX_ACK];
   char err_msg[1024];
 
   Spfrtn sr=0;
@@ -811,14 +809,8 @@ multiname(char *in_name,
 		   number_processors);
       EH(-1, err_msg);
     }
-  
-  strip_suffix(basename, in_name);
-  
-  get_suffix(suffix, in_name);
 
-  sr       = sprintf(in_name, "%s_%dof%d.%s", 
-		     basename, processor_name+1, number_processors, 
-		     suffix);
+  sprintf(in_name, "%s.%d.%d", in_name, number_processors, processor_name);
   return;
 }
 

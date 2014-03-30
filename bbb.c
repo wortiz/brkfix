@@ -1186,33 +1186,9 @@ mononame(char *in,
    */
 
   p = strrchr(in, '.');
-
-  if ( p == NULL )
-    {
-      sr = sprintf(err_msg, "Could not find a \".\" in string \"%s\"\n", in);
-      EH(-1, err_msg);
-      EH(sr, err_msg);
-    }
-
-  strcpy(suffix, p);
   strncpy(in_sans_suffix, in, (p-in));
-
-  /*
-   * Look backwards from the end for the first underscore. Save only the 
-   * leading chunk and tack on the previously saved suffix.
-   */
-
-  q = strrchr(in_sans_suffix, '_');
-
-  if ( q == NULL )
-    {
-      sr = sprintf(err_msg, "Could not find a \"_\" in string \"%s\"\n", 
-		   in_sans_suffix);
-      EH(-1, err_msg);
-    }
-
-  strncpy(out, in_sans_suffix, (q-in_sans_suffix));
-  strcat(out, suffix);
+  p = strrchr(in_sans_suffix, '.');
+  strncpy(out, in_sans_suffix, (p-in_sans_suffix));
 
   return;
 }
