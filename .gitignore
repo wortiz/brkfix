@@ -2,3 +2,5 @@
 *.o
 brk
 fix
+.project
+.cproject
