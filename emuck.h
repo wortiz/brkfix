@@ -1,3 +1,15 @@
+/************************************************************************ *
+* Goma - Multiphysics finite element software                             *
+* Sandia National Laboratories                                            *
+*                                                                         *
+* Copyright (c) 2014 Sandia Corporation.                                  *
+*                                                                         *
+* Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,  *
+* the U.S. Government retains certain rights in this software.            *
+*                                                                         *
+* This software is distributed under the GNU General Public License.      *
+\************************************************************************/
+
 /* emuck.h -- function prototype declarations for emuck.c
  *
  * $Header: /projects/seataf/CVS/ACCESS/analysis/goma/brkfix/emuck.h,v 1.1 1999-08-30 16:17:50 pasacki Exp $

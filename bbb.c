@@ -1,6 +1,16 @@
+/************************************************************************ *
+* Goma - Multiphysics finite element software                             *
+* Sandia National Laboratories                                            *
+*                                                                         *
+* Copyright (c) 2014 Sandia Corporation.                                  *
+*                                                                         *
+* Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,  *
+* the U.S. Government retains certain rights in this software.            *
+*                                                                         *
+* This software is distributed under the GNU General Public License.      *
+\************************************************************************/
+
 /* bbb -- build_big_bones, construct monolith skeleton from polylith dpi
- *
- * Copyright (c) 1998  Sandia National Laboratories. All rights reserved.
  *
  * For symmetry with the other chunks, lets only allocate the space and 
  * fill in what is known unambiguously about the global problem.

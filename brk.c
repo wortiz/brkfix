@@ -1,6 +1,17 @@
+/************************************************************************ *
+* Goma - Multiphysics finite element software                             *
+* Sandia National Laboratories                                            *
+*                                                                         *
+* Copyright (c) 2014 Sandia Corporation.                                  *
+*                                                                         *
+* Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,  *
+* the U.S. Government retains certain rights in this software.            *
+*                                                                         *
+* This software is distributed under the GNU General Public License.      *
+\************************************************************************/
+
 /* brk/fix -- problem de/re-composition of EXODUS II database + goma probdesc
  *
- * Copyright (c) 1997-2000  Sandia National Laboratories. All rights reserved.
  *
  *	brk -- examines a brk input file describing multiphysics interaction
  *             and a monolithic EXODUS II file. A problem graph is constructed,
