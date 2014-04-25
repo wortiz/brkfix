@@ -26,7 +26,7 @@
 
 #          ACCESS = /usr/local/eng_sci/struct/current
 #           ACCESS = /home/goma/production/linux/SEAMS_2006-03-16-32-GCC
-           ACCESS = /projects/seacas/current
+           ACCESS = /projects/seacas/linux_rhel6/current
 
              _INC = -I. -I$(ACCESS)/inc
 
@@ -44,7 +44,7 @@
 
         LIB_CHACO = -lchaco
 
-       LIB_NETCDF = -lnetcdf -lhdf5_hl -lhdf5
+       LIB_NETCDF = -lnetcdf -lhdf5_hl -lhdf5 -ldl
 
        LIB_EXODUS = -lexoIIv2c
 
