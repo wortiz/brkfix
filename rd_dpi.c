@@ -231,7 +231,7 @@ init_dpi_version(Dpi *d)
 
   d->dpi_version_string = (char *) smalloc((len+3)*sizeof(char));
 
-  for ( i=0; i<len; i++)
+  for ( i=0; i<len+3; i++)
     {
       d->dpi_version_string[i] = '\0';
     }
