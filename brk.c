@@ -3873,23 +3873,6 @@ main (int argc, char *argv[], char *envp[])
 	  D->ptr_set_membership[i]           = proc_psm[i];
 	}
       
-
-      D->global_node_dof0        = (int *) smalloc(num_universe_nodes*SZ_INT);
-
-      for ( n=0; n<num_universe_nodes; n++)
-	{
-	  node = proc_nodes[n];
-	  D->global_node_dof0[n]  = node_dof0[node];
-	}
-
-      D->global_node_kind         = (int *) smalloc(num_universe_nodes*SZ_INT);
-
-      for ( n=0; n<num_universe_nodes; n++)
-	{
-	  node = proc_nodes[n];
-	  D->global_node_kind[n]  = node_kind[node];
-	}
-
       D->elem_index_global = (int *) smalloc(proc_ne*SZ_INT);
       for ( i=0; i<proc_ne; i++)
 	{
@@ -4663,8 +4646,6 @@ main (int argc, char *argv[], char *envp[])
        *
        *		proc_node_dof0[local_node_number]
        *		global_node_name[local_node_number]
-       *		global_node_dof0[local_node_number]
-       *		global_node_kinds[]
        *		proc_node_kinds[]
        *
        * Obtain a map of the
