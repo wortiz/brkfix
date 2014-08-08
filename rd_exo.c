@@ -262,7 +262,7 @@ rd_exo(Exo_DB *x,		/* def'd in exo_struct.h */
 
 	  for ( i=0; i<x->num_info; i++)
 	    {
-	      x->info[i] = (char *) smalloc(MAX_LINE_LENGTH * sc);
+	      x->info[i] = (char *) smalloc((MAX_LINE_LENGTH+1) * sc);
 	    }
 	  status = ex_get_info(x->exoid, &(x->info[0]));
 	  EH(status, "ex_get_info");

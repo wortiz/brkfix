@@ -329,7 +329,7 @@ rd_dpi(Dpi *d,
   int u;			/* short hand for unit... */
 
   struct Shadow_Identifiers si;
-
+  memset(&si, 0, sizeof(struct Shadow_Identifiers));
   status = 0;
 
   for ( i=0; i<NC_MAX_VAR_DIMS; i++)
@@ -552,10 +552,6 @@ rd_dpi(Dpi *d,
 	 &si.elem_var_tab_global);
   getvid(u, VAR_GLOBAL_NODE_DESCRIPTION,   TRUE,
 	 &si.global_node_description);
-  getvid(u, VAR_GLOBAL_NODE_DOF0,          TRUE,
-	 &si.global_node_dof0);
-  getvid(u, VAR_GLOBAL_NODE_KIND,          TRUE,
-	 &si.global_node_kind);
   getvid(u, VAR_MY_NAME,                   TRUE,
 	 &si.my_name);
   getvid(u, VAR_NEIGHBOR,                  FALSE,
@@ -761,12 +757,6 @@ rd_dpi(Dpi *d,
       d->node_index_global = (int *) smalloc(len*sizeof(int));
     }
 
-  if ( d->num_universe_nodes > 0 ) 
-    {
-      d->global_node_dof0 = (int *) smalloc(d->num_universe_nodes*sizeof(int));
-      d->global_node_kind = (int *) smalloc(d->num_universe_nodes*sizeof(int));
-    }
-
   if ( d->num_neighbors > 0 )
     {
       d->neighbor = (int *) smalloc(d->num_neighbors*sizeof(int));
@@ -908,14 +898,6 @@ rd_dpi(Dpi *d,
   get_variable(u, NC_INT, 2, 
 	       d->num_global_node_descriptions,	d->len_node_description, 
 	       si.global_node_description,&(d->global_node_description[0][0]));
-
-  get_variable(u, NC_INT, 1, 
-	       d->num_universe_nodes,	-1, 
-	       si.global_node_dof0,	d->global_node_dof0);
-
-  get_variable(u, NC_INT, 1, 
-	       d->num_universe_nodes,	-1, 
-	       si.global_node_kind,	d->global_node_kind);
 
   get_variable(u, NC_INT, 0, 
 	       -1,	-1, 
@@ -1105,7 +1087,6 @@ getdid(int netcdf_unit,			/* should already be open	(in) */
 {
   int err;
   char err_msg[MAX_CHAR_ERR_MSG];  
-  Spfrtn sr=0;
 
 #ifdef DEBUG
   fprintf(stderr, "getdid(unit=%d, \"%s\", %d, 0x%x\n", netcdf_unit,
@@ -1121,7 +1102,7 @@ getdid(int netcdf_unit,			/* should already be open	(in) */
    */
   if ( err != NC_NOERR && hard_error_interpretation )
     {
-      sr = sprintf(err_msg, "nc_inq_dimid() on %s id=%d", 
+      sprintf(err_msg, "nc_inq_dimid() on %s id=%d", 
 		   string_name, 
 		   *dimension_identifier_address);
       EH(-1, err_msg);
@@ -1132,9 +1113,8 @@ getdid(int netcdf_unit,			/* should already be open	(in) */
   err  = ncdimid(netcdf_unit, string_name);
   if ( err == -1 && hard_error_interpretation )
     {
-      sr   = sprintf(err_msg, "ncdimid() on %s rtn %d", string_name, err);
+      sprintf(err_msg, "ncdimid() on %s rtn %d", string_name, err);
       EH(err, err_msg);
-      EH(sr, err_msg);
     }
   *dimension_identifier_address = err;
 #endif  
@@ -1173,7 +1153,6 @@ getvid(int netcdf_unit,		         /* open netCDF unit identifier (in) */
 {
   int err;
   char err_msg[MAX_CHAR_ERR_MSG];  
-  Spfrtn sr=0;
 
 
 #ifdef NETCDF_3
@@ -1181,7 +1160,7 @@ getvid(int netcdf_unit,		         /* open netCDF unit identifier (in) */
   err  = nc_inq_varid(netcdf_unit, string_name, variable_identifier_address);
   if ( err != NC_NOERR && hard_error_interpretation )
     {
-      sr = sprintf(err_msg, "nc_inq_varid() on %s id=%d", 
+      sprintf(err_msg, "nc_inq_varid() on %s id=%d", 
 		   string_name, 
 		   *variable_identifier_address);
       EH(-1, err_msg);
@@ -1192,9 +1171,8 @@ getvid(int netcdf_unit,		         /* open netCDF unit identifier (in) */
   err  = ncvarid(netcdf_unit, string_name);
   if ( err == -1 && hard_error_interpretation )
     {
-      sr   = sprintf(err_msg, "ncvarid() on %s rtn %d", string_name, err);
+      sprintf(err_msg, "ncvarid() on %s rtn %d", string_name, err);
       EH(err, err_msg);
-      EH(sr, err_msg);
     }
   *variable_identifier_address = err;
 #endif  
@@ -1225,7 +1203,6 @@ getdim(int netcdf_unit,
 {
   int err;
   char err_msg[MAX_CHAR_ERR_MSG];  
-  Spfrtn sr=0;
 #ifdef NETCDF_3
   size_t swhere;
 #endif
@@ -1250,7 +1227,7 @@ getdim(int netcdf_unit,
       err  = nc_inq_dimlen(netcdf_unit, dimension_id, &swhere);
       if ( err != NC_NOERR )
 	{
-	  sr = sprintf(err_msg, "nc_inq_dimlen() on did=%d", dimension_id);
+	  sprintf(err_msg, "nc_inq_dimlen() on did=%d", dimension_id);
 	  EH(-1, err_msg);
 	}
       *where = (int) swhere;
@@ -1258,11 +1235,10 @@ getdim(int netcdf_unit,
 
 #ifdef NETCDF_2
       err  = ncdiminq(netcdf_unit, dimension_id, junk, &swhere);
-      sr   = sprintf(err_msg, "ncdiminq() on did %d rtns %d", dimension_id, 
+      sprintf(err_msg, "ncdiminq() on did %d rtns %d", dimension_id, 
 		     err);
       *where = (int) swhere;
       EH(err, err_msg);
-      EH(sr, err_msg);
 #endif  
     }
   return;
@@ -1363,8 +1339,6 @@ uni_dpi(Dpi *dpi,
 	}
     }
   
-  dpi->global_node_dof0        = First_Unknown;
-
   /*
    * Well, yes, this looks fishy. To avoid wasting memory, just point this
    * to some array with a length that is the number of nodes in the problem
@@ -1372,8 +1346,6 @@ uni_dpi(Dpi *dpi,
    * serial problems. If and when you really make use of it, then go ahead
    * and allocate space to hold the proper integer labels.
    */
-
-  dpi->global_node_kind        = First_Unknown;
 
   dpi->neighbor                = &ProcID;
 
@@ -1468,8 +1440,6 @@ free_dpi(Dpi *d)
   safe_free(d->global_node_description[0]);
   safe_free(d->global_node_description);
 
-  safe_free(d->global_node_dof0);
-  safe_free(d->global_node_kind);
   safe_free(d->neighbor);
 
   if ( d->num_nodes > 0 )
@@ -1608,7 +1578,6 @@ get_variable(const int netcdf_unit,
   long start[NC_MAX_VAR_DIMS];
 #endif
   char err_msg[MAX_CHAR_ERR_MSG];
-  Spfrtn sr=0;
 
   get_variable_call_count++;
 
@@ -1629,7 +1598,7 @@ get_variable(const int netcdf_unit,
       err = nc_get_var_int(netcdf_unit, variable_identifier, variable_address);
       if ( err != NC_NOERR )
 	{
-	  sr = sprintf(err_msg, "nc_get_var_int() varid=%d", 
+	  sprintf(err_msg, "nc_get_var_int() varid=%d", 
 		       variable_identifier);
 	  EH(-1, err_msg);
 	}
@@ -1640,7 +1609,7 @@ get_variable(const int netcdf_unit,
 			    variable_address);
       if ( err != NC_NOERR )
 	{
-	  sr = sprintf(err_msg, "nc_get_var_text() varid=%d", 
+	  sprintf(err_msg, "nc_get_var_text() varid=%d", 
 		       variable_identifier);
 	  EH(-1, err_msg);
 	}
@@ -1651,7 +1620,7 @@ get_variable(const int netcdf_unit,
 			      variable_address);
       if ( err != NC_NOERR )
 	{
-	  sr = sprintf(err_msg, "nc_get_var_double() varid=%d", 
+	  sprintf(err_msg, "nc_get_var_double() varid=%d", 
 		       variable_identifier);
 	  EH(-1, err_msg);
 	}
@@ -1667,10 +1636,9 @@ get_variable(const int netcdf_unit,
   
   if ( num_dimensions < 0 || num_dimensions > 2 )
     {
-      sr = sprintf(err_msg, "Bad or too large dimension value %d", 
+      sprintf(err_msg, "Bad or too large dimension value %d", 
 		   num_dimensions);
       EH(-1, err_msg);
-      EH(sr, err_msg);
     }
 
   for ( i=0; i<num_dimensions; i++)
@@ -1701,7 +1669,7 @@ get_variable(const int netcdf_unit,
 		 variable_address);
   if ( err < 0 )
     {
-      sr = sprintf(err_msg, 
+      sprintf(err_msg, 
 		   "get_variable (%d call), varid %d (%d dim %d,%d)\n",
 		   get_variable_call_count,
 		   variable_identifier, num_dimensions, 
