@@ -27,9 +27,9 @@
 #          ACCESS = /usr/local/eng_sci/struct/current
 #           ACCESS = /home/goma/production/linux/SEAMS_2006-03-16-32-GCC
 
-            GOMA_LIBS = /home/goma/production
+            GOMA_LIBS = /home/wortiz/Goma/libraries
 
-            TRILINOS_TOP ?= $(GOMA_LIBS)/trilinos-12.2.1-Built
+            TRILINOS_TOP ?= $(GOMA_LIBS)/trilinos-12.6.3-Built
 
             include $(TRILINOS_TOP)/include/Makefile.export.Trilinos
 

@@ -998,13 +998,13 @@ rd_exo(Exo_DB *x,		/* def'd in exo_struct.h */
        * setup and reasonable.
        */
 
-      if ( x->num_gv_time_indeces > 0 &&
+      if ( x->num_times > 0 &&
 	   x->num_glob_vars > 0 )
 	{
 
 	  if ( ! ( x->state & EXODB_STATE_GBVA ) )
 	    {
-	      alloc_exo_gv(x, 1);
+	      alloc_exo_gv(x, x->num_times-1);
 	    }
 
 	  for ( i=0; i<x->num_gv_time_indeces; i++)
@@ -2543,7 +2543,7 @@ alloc_exo_gv(Exo_DB *x,
    * Fill these indeces with reasonable defaults.
    */
 
-  for ( i=0; i<x->num_nv_time_indeces; i++)
+  for ( i=0; i<x->num_gv_time_indeces; i++)
     {
       x->gv_time_indeces[i] = i+1;
     }
