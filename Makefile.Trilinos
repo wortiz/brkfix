@@ -29,7 +29,7 @@
 
             GOMA_LIBS = /home/goma/production
 
-            TRILINOS_TOP ?= $(GOMA_LIBS)/trilinos-12.2.1-Built
+            TRILINOS_TOP ?= $(GOMA_LIBS)/trilinos-12.6.3-Built
 
             include $(TRILINOS_TOP)/include/Makefile.export.Trilinos
 

@@ -886,7 +886,8 @@ main (int argc, char *argv[], char *envp[])
 
   status = rd_exo(mono, in_exodus_file_name, 0, (EXODB_ACTION_RD_INIT +
 						 EXODB_ACTION_RD_MESH +
-						 EXODB_ACTION_RD_RES0));
+						 EXODB_ACTION_RD_RES0 +
+						 EXODB_ACTION_RD_RESG));
 		  
   /*
    * Convenience variables...
@@ -4293,12 +4294,16 @@ main (int argc, char *argv[], char *envp[])
       if ( E->num_glob_vars > 0 )
 	{
 	  E->glob_var_names = (char **) smalloc(E->num_glob_vars*SZPCHR);
+
+	  
 	  for ( i=0; i<E->num_glob_vars; i++)
 	    {
 	      E->glob_var_names[i] = (char *) smalloc(MAX_STR_LENGTH*SZ_CHR);
 	      tmp = strcpy(E->glob_var_names[i], mono->glob_var_names[i]);
 	    }
+	  
 
+	  
 	}
 
       if ( E->num_node_vars > 0 )
@@ -4478,6 +4483,42 @@ main (int argc, char *argv[], char *envp[])
 	  free_exo_nv(E);
 	  free_exo_nv(mono);
 	}
+
+
+      if ( E->num_glob_vars > 0 ) {
+
+	E->cmode = EX_WRITE;
+
+
+	E->io_wordsize   = 0;	/* i.e., query */
+	E->comp_wordsize = sizeof(dbl);
+	E->exoid         = ex_open(E->path, 
+				   E->cmode, 
+				   &E->comp_wordsize, 
+				   &E->io_wordsize, 
+				   &E->version);
+
+	/*status = ex_put_var_param(E->exoid, "g", mono->num_glob_vars);
+	EH(status, "ex_put_var_param(g)");
+	*/
+	status = ex_put_var_names(E->exoid, "g", mono->num_glob_vars,
+				  mono->glob_var_names);
+	EH(status, "ex_put_var_names(g)");
+
+
+
+	for (i = 0; i < mono->num_gv_time_indeces; i++) {
+	  status = ex_put_glob_vars(E->exoid, mono->gv_time_indeces[i],
+			   mono->num_glob_vars,
+			   mono->gv[i]);
+	  EH(status, "ex_put_glob_vars");
+	}
+
+	status = ex_close(E->exoid);
+	EH(status, "ex_close()");
+
+      }
+   
 	
       if ( E->num_elem_vars > 0 )  /* Save me baby Jesus ! Imma try to clone the nv section and hope for the best */
 	{
