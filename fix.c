@@ -753,6 +753,41 @@ main (int argc, char *argv[], char *envp[])
 	      t, mono->nv_time_indeces[0]);
 #endif
       wr_result_exo(mono, monolith_file_name, 0);
+
+      if ( mono->num_glob_vars > 0 ) {
+
+	mono->cmode = EX_WRITE;
+
+
+	mono->io_wordsize   = 0;	/* i.e., query */
+	mono->comp_wordsize = sizeof(dbl);
+	mono->exoid         = ex_open(mono->path, 
+				   mono->cmode, 
+				   &mono->comp_wordsize, 
+				   &mono->io_wordsize, 
+				   &mono->version);
+
+	/*status = ex_put_var_param(mono->exoid, "g", mono->num_glob_vars);
+	EH(status, "ex_put_var_param(g)");
+	*/
+	status = ex_put_var_names(mono->exoid, "g", mono->num_glob_vars,
+				  mono->glob_var_names);
+	EH(status, "ex_put_var_names(g)");
+
+
+
+	for (i = 0; i < mono->num_gv_time_indeces; i++) {
+	  status = ex_put_glob_vars(mono->exoid, mono->gv_time_indeces[i],
+			   mono->num_glob_vars,
+			   mono->gv[i]);
+	  EH(status, "ex_put_glob_vars");
+	}
+
+	status = ex_close(mono->exoid);
+	EH(status, "ex_close()");
+
+      }
+
       zero_base(mono);
     }
 
