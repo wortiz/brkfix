@@ -1,0 +1,74 @@
+cmake_minimum_required(VERSION 2.8)
+SET(CMAKE_PREFIX_PATH ${SEACAS_PREFIX} ${CMAKE_PREFIX_PATH})
+
+# Get SEACAS as one entity
+FIND_PACKAGE(SEACAS REQUIRED)
+
+set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -O3")
+
+SET(CMAKE_CXX_COMPILER ${SEACAS_CXX_COMPILER} )
+SET(CMAKE_C_COMPILER ${SEACAS_C_COMPILER} )
+SET(CMAKE_Fortran_COMPILER ${SEACAS_Fortran_COMPILER} )
+
+INCLUDE_DIRECTORIES(${SEACAS_INCLUDE_DIRS} ${SEACAS_TPL_INCLUDE_DIRS})
+LINK_DIRECTORIES(${SEACAS_LIBRARY_DIRS} ${SEACAS_TPL_LIBRARY_DIRS})
+
+ADD_DEFINITIONS(-DHAVE_CONFIG_H=1)
+
+include_directories(${CMAKE_SOURCE_DIR})
+
+FILE(GLOB BRKFIX_HEADER_FILES
+  *.h)
+
+SET(BRK_SOURCE_FILES
+  ${BRKFIX_HEADER_FILES}
+  brk.c
+  rd_exo.c
+  wr_exo.c
+  rd_in.c
+  wr_graph_file.c
+  mk_dm.c
+  wr_coords.c
+  ppi.c
+  sam_perea.c
+  wr_dpi.c
+  utils.c
+  aalloc.c
+  eh.c
+  exo_utils.c
+  exo_conn.c
+  emuck.c
+  rd_dpi.c)
+
+SET(FIX_SOURCE_FILES
+  ${BRKFIX_HEADER_FILES}
+  fix.c
+  rd_exo.c
+  wr_exo.c
+  rd_dpi.c
+  wr_dpi.c
+  utils.c
+  aalloc.c
+  eh.c
+  bbb.c
+  exo_utils.c)
+
+ADD_EXECUTABLE(
+  brk
+  ${BRK_SOURCE_FILES})
+
+ADD_EXECUTABLE(
+  fix
+  ${FIX_SOURCE_FILES})
+
+TARGET_LINK_LIBRARIES(brk
+  ${SEACAS_LIBRARIES}
+  ${SEACAS_TPL_LIBRARIES}
+  ${SEACAS_EXTRA_LD_FLAGS})
+
+TARGET_LINK_LIBRARIES(fix
+  ${SEACAS_LIBRARIES}
+  ${SEACAS_TPL_LIBRARIES}
+  ${SEACAS_EXTRA_LD_FLAGS})
