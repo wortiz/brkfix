@@ -346,6 +346,105 @@ usage(const int status)
   exit(-1);
 }
 
+void
+integer_sort(int length, int *array)
+{
+  if (length < 1) {
+      EH(-1, "Negative or zero length array to sort?");
+  }
+  qsort(array, length, sizeof(int), integer_compare);
+  return;
+}
+
+int * find_ss_internal_boundary(Exo_DB *e)
+{
+  char err_msg[MAX_CHAR_ERR_MSG];
+  int *ss_is_internal = malloc(e->num_side_sets * SZ_INT);
+  int *first_side_node_list = malloc(MAX_NODES_PER_SIDE * SZ_INT);
+  int *other_side_node_list = malloc(MAX_NODES_PER_SIDE * SZ_INT);
+
+  for (int i = 0; i < e->num_side_sets; i++)
+    {
+      ss_is_internal[i] = -1;
+    }
+
+  for (int ss_index = 0; ss_index < e->num_side_sets; ss_index++)
+    {
+      /*
+         * It suffices to check the first element/side pair. The nodes here
+         * are cross-checked with the nodes in subsequent element/side pairs
+         * in this same sideset.
+         */
+      int side  = 0;
+      int start    = e->ss_node_side_index[ss_index][side];
+      int end    = e->ss_node_side_index[ss_index][side+1];
+      for (int i = 0; i < (end-start); i++)
+        {
+          first_side_node_list[i] = e->ss_node_list[ss_index][start+i];
+        }
+
+      /*
+         * Sort the node numbers into ascending order.
+         */
+      if ((end-start) < 1)
+        {
+          EH(-1, "Bad side node index listing!");
+        }
+      integer_sort((end-start), first_side_node_list);
+
+      /*
+         * Now look at the 2nd through last elem/sides nodegroups for any match,
+         * but only if there are at least 2 sides in this sideset.
+         *
+         *	"Just one side?"
+         *
+         *	"You're external, buddy!
+         */
+
+      int num_sides   = e->ss_num_sides[ss_index];
+      if (num_sides > 1)
+        {
+          side        = 1;
+          int match_found = FALSE;
+          do
+            {
+              int start    = e->ss_node_side_index[ss_index][side];
+              int end    = e->ss_node_side_index[ss_index][side+1];
+              for (int i = 0; i < (end-start); i++) {
+                  other_side_node_list[i] = e->ss_node_list[ss_index][start+i];
+                }
+              if ((end-start) < 1) {
+                  sprintf(err_msg,
+                          "SS ID %d (%d sides), side_index[%d]=%d, side_index[%d]=%d",
+                          e->ss_id[ss_index], e->ss_num_sides[ss_index],
+                          side, start, side+1, end);
+                  EH(-1, err_msg);
+                }
+              integer_sort((end-start), other_side_node_list);
+              int equal_vectors = TRUE;
+              for (int i = 0; i < (end-start); i++)
+                {
+                  equal_vectors &= (other_side_node_list[i] == first_side_node_list[i]);
+                }
+              match_found = equal_vectors;
+              side++;
+            } while (side<num_sides && !match_found);
+
+          if (match_found)
+            {
+              /*
+               * Set this indicator to the SS ID, but any quantity not
+               * equal to "0" would do just as well.
+               */
+              ss_is_internal[ss_index] = e->ss_id[ss_index];
+            }
+        }
+    }
+  free(other_side_node_list);
+  free(first_side_node_list);
+  return ss_is_internal;
+}
+
 int 
 main (int argc, char *argv[], char *envp[])
 {
@@ -1739,6 +1838,8 @@ main (int argc, char *argv[], char *envp[])
   ebi              = (int *) smalloc(neb*SZ_INT);
 
   new_proc_eb_ptr  = (int *) smalloc((neb+1)*SZ_INT);
+
+  int * ss_internal = find_ss_internal_boundary(mono);
 
   for ( s=0; s<num_pieces; s++)
     {
@@ -4230,6 +4331,44 @@ main (int argc, char *argv[], char *envp[])
 		}
 	    }
 	}
+	
+    if (mono->num_side_sets > 0) {
+        D->ss_block_index_global = calloc(mono->num_side_sets+1, sizeof(int));
+        D->ss_block_list_global = calloc(MAX_MAT_PER_SS * mono->num_side_sets, sizeof(int));
+
+        // populate list of blocks associated to side sets
+
+        int ss_block_index = 0;
+        for (int ss_id = 0; ss_id < mono->num_side_sets; ss_id++) {
+            int ss_start = ss_block_index;
+            for (int elem_index = mono->ss_elem_index[ss_id];
+                elem_index < (mono->ss_elem_index[ss_id] + mono->ss_num_sides[ss_id]);
+                elem_index++) {
+                int elem = mono->ss_elem_list[elem_index];
+
+                int block = find_element_block(mono, elem);
+
+                // check if block is in array for ss already
+                int known = 0;
+                for (int i = ss_start; i < ss_block_index; i++) {
+                    if (D->ss_block_list_global[i] == block) {
+                        known = 1;
+                    }
+                }
+
+                if (!known) {
+                    D->ss_block_list_global[ss_block_index] = block;
+                    ss_block_index++;
+                }
+
+            }
+
+            D->ss_block_index_global[ss_id] = ss_start;
+            D->ss_block_index_global[ss_id+1] = ss_block_index;
+        }
+    }
+
+    D->ss_internal_global = ss_internal;
 
 #ifdef DEBUG
       for ( i=0; i<mono->eb_num_props; i++)
@@ -4699,6 +4838,12 @@ main (int argc, char *argv[], char *envp[])
        */
 
       free_exo(E);
+      
+      if (mono->num_side_sets > 0) {
+        free(D->ss_block_index_global);
+        free(D->ss_block_list_global);
+      }
+      
       free_dpi(D);
 
     } /* set loop */
@@ -4707,6 +4852,7 @@ main (int argc, char *argv[], char *envp[])
   free(proc_eb_ptr);
   free(ebi);
   free(new_proc_eb_ptr);
+  free(ss_internal);
 
   if ( mono->num_dim > 0 )
     {
